@@ -1,0 +1,10 @@
+/* 只保留基础样式 */
+:root {
+  --el-color-primary: #409EFF;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
