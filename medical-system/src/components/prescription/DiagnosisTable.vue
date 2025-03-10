@@ -45,7 +45,7 @@ import { Plus } from '@element-plus/icons-vue'
 const diagnosisList = ref([
   {
     type: '单纯性肥胖',
-    description: '体重指数(BMI)≥28.0'
+    description: '体重指数AAA(BMI)≥28.0'
   }
 ])
 

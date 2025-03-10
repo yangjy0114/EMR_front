@@ -25,6 +25,7 @@
 
     <!-- 子导航栏 -->
     <div class="sub-nav">
+      <!-- 第一行：导航按钮组 -->
       <div class="nav-row">
         <el-button-group>
           <el-button 
@@ -36,10 +37,10 @@
           </el-button>
           <el-button 
             type="primary" 
-            :class="{ active: activeSubNav === 'image' }" 
-            @click="handleNavClick('image')"
+            :class="{ active: activeSubNav === 'ai' }" 
+            @click="handleNavClick('ai')"
           >
-            <el-icon><Picture /></el-icon>影像分析
+            <el-icon><Monitor /></el-icon>AI辅助
           </el-button>
           <el-button 
             type="primary" 
@@ -48,12 +49,53 @@
           >
             <el-icon><Edit /></el-icon>添加病历
           </el-button>
-          <el-button 
-            type="primary" 
-            :class="{ active: activeSubNav === 'prescription' }" 
-            @click="handleNavClick('prescription')"
-          >
-            <el-icon><Notebook /></el-icon>开处方
+        </el-button-group>
+      </div>
+
+      <!-- 第二行：功能按钮组 -->
+      <div class="nav-row">
+        <el-button-group>
+          <el-button size="small">
+            <el-icon><Plus /></el-icon>叫号
+          </el-button>
+          <el-button size="small">
+            <el-icon><Delete /></el-icon>清空
+          </el-button>
+          <el-button size="small">
+            <el-icon><Document /></el-icon>保存
+          </el-button>
+          <el-button size="small">
+            <el-icon><Setting /></el-icon>作废
+          </el-button>
+          <el-button size="small">
+            <el-icon><List /></el-icon>套餐模板
+          </el-button>
+          <el-button size="small">
+            <el-icon><Timer /></el-icon>就诊辅助
+          </el-button>
+          <el-button size="small">
+            <el-icon><Printer /></el-icon>打印
+          </el-button>
+          <el-button size="small">
+            <el-icon><Location /></el-icon>我的位置
+          </el-button>
+          <el-button size="small">
+            <el-icon><VideoCamera /></el-icon>视频会议
+          </el-button>
+          <el-button size="small">
+            <el-icon><Document /></el-icon>查看检查申请单
+          </el-button>
+          <el-button size="small">
+            <el-icon><Document /></el-icon>报告中心
+          </el-button>
+          <el-button size="small">
+            <el-icon><Star /></el-icon>特殊操作
+          </el-button>
+          <el-button size="small">
+            <el-icon><Clock /></el-icon>预约(F120)
+          </el-button>
+          <el-button size="small">
+            <el-icon><More /></el-icon>其它操作
           </el-button>
         </el-button-group>
       </div>
@@ -63,7 +105,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Document, Picture, Edit, Notebook } from '@element-plus/icons-vue'
+import { 
+  Document, Monitor, Edit,
+  Plus, Delete, Setting, List,
+  Timer, Printer, Location, VideoCamera,
+  Star, Clock, More
+} from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
@@ -77,14 +124,11 @@ const handleNavClick = (type) => {
     case 'history':
       router.push('/')
       break
-    case 'image':
-      router.push('/image-analysis')
+    case 'ai':
+      router.push('/ai-assist')
       break
     case 'new':
       router.push('/new-record')
-      break
-    case 'prescription':
-      router.push('/prescription')
       break
   }
 }
@@ -120,13 +164,18 @@ const handleNavClick = (type) => {
   
   .sub-nav {
     display: flex;
+    flex-direction: column;
     padding: 5px 10px;
     background-color: #f0f2f5;
-    border-bottom: 1px solid #dcdfe6;
     
     .nav-row {
       display: flex;
       align-items: center;
+      margin-bottom: 5px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
       
       .el-button {
         padding: 5px 8px;

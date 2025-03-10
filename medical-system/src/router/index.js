@@ -19,8 +19,8 @@ const router = createRouter({
           component: PatientHistory
         },
         {
-          path: 'image-analysis',
-          name: 'imageAnalysis',
+          path: 'ai-assist',
+          name: 'aiAssist',
           component: PatientDetailView
         },
         {

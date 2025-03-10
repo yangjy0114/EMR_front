@@ -36,10 +36,14 @@ import QuickActions from '../components/layout/QuickActions.vue'
     .aside-container {
       padding: 10px;
       background: #fff;
+      height: 100%;
+      overflow: hidden;
     }
     
     .main-content {
-      padding: 0;
+      padding: 10px;
+      height: 100%;
+      overflow: hidden;
     }
   }
 }

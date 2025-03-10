@@ -46,14 +46,21 @@ const basicForm = ref({
 
 <style lang="scss" scoped>
 .patient-history {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
   .patient-basic-info {
     padding: 10px;
     border-bottom: 1px solid #e4e7ed;
+    flex-shrink: 0;
   }
   
   .diagnosis-info,
   .prescription-info {
     padding: 10px;
+    flex: 1;
+    overflow-y: auto;
   }
 }
 </style> 

@@ -95,7 +95,8 @@ const waitingPatients = ref([
   background-color: #fff;
   
   .list-section {
-    flex: 1;
+    height: 50%;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid #a6c5e8;
@@ -110,11 +111,13 @@ const waitingPatients = ref([
       color: #1e1e1e;
       font-size: 13px;
       border-bottom: 1px solid #a6c5e8;
+      flex-shrink: 0;
     }
     
     .table-container {
       flex: 1;
       overflow-y: auto;
+      min-height: 0;
       
       :deep(.el-table) {
         height: 100%;
