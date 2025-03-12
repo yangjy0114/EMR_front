@@ -11,14 +11,33 @@
         </el-descriptions>
         
         <div class="action-buttons">
-          <el-button type="primary" @click="handleSelectImages">
-            <el-icon><Picture /></el-icon>选择影像
+          <el-select 
+            v-model="selectedScan" 
+            placeholder="选择扫描时间"
+            style="width: 200px"
+            @change="handleScanSelect"
+            value-key="id"
+          >
+            <el-option
+              v-for="record in scanRecords"
+              :key="record.id"
+              :label="formatTimestamp(record.timestamp)"
+              :value="record"
+            />
+          </el-select>
+          <el-button 
+            type="primary" 
+            @click="handleAnalysis"
+            :disabled="!hasSelectedScan"
+          >
+            <el-icon><VideoPlay /></el-icon>AI影像分析
           </el-button>
-          <el-button type="primary" @click="handleAnalysis" :disabled="!octImage || !fundusImage">
-            <el-icon><VideoPlay /></el-icon>影像分析
-          </el-button>
-          <el-button type="primary" @click="handleGenerateReport">
-            <el-icon><Document /></el-icon>生成报告
+          <el-button 
+            type="primary" 
+            @click="handleGenerateReport"
+            :disabled="!hasAnalyzed"
+          >
+            <el-icon><Document /></el-icon>AI生成报告
           </el-button>
         </div>
       </div>
@@ -30,32 +49,23 @@
         <el-col :span="8">
           <div class="image-container">
             <div class="section-title">OCT图像</div>
-            <div class="upload-area">
-              <el-upload
-                v-if="!octImage"
-                class="upload"
-                action="#"
-                :auto-upload="false"
-                :show-file-list="false"
-                :on-change="handleOctUpload"
-              >
-                <div class="upload-content">
-                  <el-icon><Plus /></el-icon>
-                  <div>点击上传OCT图像</div>
-                </div>
-              </el-upload>
-              <img v-else :src="octImage" class="preview-image"/>
+            <div class="image-area">
+              <img v-if="octImage" :src="octImage" class="preview-image"/>
+              <div v-else class="placeholder">
+                <el-icon><Picture /></el-icon>
+                <div>请选择扫描记录</div>
+              </div>
             </div>
           </div>
         </el-col>
         <el-col :span="8">
           <div class="image-container">
             <div class="section-title">眼底图像</div>
-            <div class="upload-area">
+            <div class="image-area">
               <img v-if="fundusImage" :src="fundusImage" class="preview-image"/>
-              <div v-else class="upload-content">
-                <el-icon><Plus /></el-icon>
-                <div>点击上传眼底图像</div>
+              <div v-else class="placeholder">
+                <el-icon><Picture /></el-icon>
+                <div>请选择扫描记录</div>
               </div>
             </div>
           </div>
@@ -63,9 +73,12 @@
         <el-col :span="8">
           <div class="image-container">
             <div class="section-title">分割结果</div>
-            <div class="result-content">
+            <div class="image-area">
               <img v-if="segImage" :src="segImage" class="preview-image"/>
-              <div v-else class="placeholder">上传图片后显示分割结果</div>
+              <div v-else class="placeholder">
+                <el-icon><Picture /></el-icon>
+                <div>请选择AI影像分析</div>
+              </div>
             </div>
           </div>
         </el-col>
@@ -146,13 +159,16 @@
       border-radius: 4px;
       box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
 
-      .upload-area, .result-content {
+      .image-area {
         height: 300px;
         width: 300px;
         margin: 0 auto;
         border: 1px dashed #d9d9d9;
         border-radius: 4px;
         overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         
         .preview-image {
           width: 100%;
@@ -160,12 +176,14 @@
           object-fit: contain;
         }
         
-        .upload-content {
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
+        .placeholder {
+          text-align: center;
+          color: #909399;
+          
+          .el-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+          }
         }
       }
     }
@@ -213,13 +231,14 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Plus, Picture, VideoPlay, Document } from '@element-plus/icons-vue'
+import { Picture, VideoPlay, Document } from '@element-plus/icons-vue'
 
 const octImage = ref('')
 const fundusImage = ref('')
 const segImage = ref('')
 const classificationResult = ref('等待分析...')
 const aiReport = ref('')
+const selectedScan = ref(null)
 const patientInfo = ref({
   name: '李萍',
   gender: '女',
@@ -227,31 +246,81 @@ const patientInfo = ref({
   id: '1234567890123'
 })
 
-// 处理选择影像
-const handleSelectImages = () => {
-  octImage.value = '/mock/images/oct/p001_oct_20250218133317.tif'
-  fundusImage.value = '/mock/images/fundus/p001_fundus_20250218133317.tif'
+// 添加状态控制变量
+const hasSelectedScan = ref(false)  // 是否已选择扫描记录
+const hasAnalyzed = ref(false)      // 是否已完成分析
+
+// 修改扫描记录数据，使用新的图片命名格式
+const scanRecords = ref([
+  {
+    id: '1',
+    timestamp: '20250218133317',
+    patientId: 'p001',
+    octImage: '/mock/images/oct/p001_oct.png',
+    fundusImage: '/mock/images/fundus/p001_fundus.png'
+  },
+  {
+    id: '2',
+    timestamp: '20250218140051',
+    patientId: 'p002',
+    octImage: '/mock/images/oct/p002_oct.png',
+    fundusImage: '/mock/images/fundus/p002_fundus.png'
+  }
+])
+
+// 修改时间戳格式化函数
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return ''
+  
+  const year = timestamp.slice(0, 4)
+  const month = timestamp.slice(4, 6)
+  const day = timestamp.slice(6, 8)
+  const hour = timestamp.slice(8, 10)
+  const minute = timestamp.slice(10, 12)
+  const second = timestamp.slice(12, 14)
+  
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`
 }
 
-const handleOctUpload = (file) => {
-  octImage.value = URL.createObjectURL(file.raw)
+// 修改选择处理函数
+const handleScanSelect = (record) => {
+  if (!record) return
+  console.log('Selected record:', record)
+  
+  // 重置状态
+  hasAnalyzed.value = false
+  aiReport.value = ''
+  classificationResult.value = '等待分析...'
+  segImage.value = ''
+  
+  // 只显示OCT和眼底图
+  octImage.value = record.octImage
+  fundusImage.value = record.fundusImage
+  
+  hasSelectedScan.value = true
 }
 
-// 处理影像分析
+// 修改影像分析处理函数
 const handleAnalysis = () => {
-  if (!octImage.value || !fundusImage.value) return
+  const currentScan = selectedScan.value
+  if (!currentScan) return
   
-  segImage.value = '/mock/images/segmentation/segmented_p002_fundus_20250218140051_20250218141702.png'
+  // 显示分割结果
+  segImage.value = `/mock/images/segmentation/segmented_${currentScan.patientId}_fundus.png`
   
+  // 获取分类结果
   fetch('/mock/data/classification.json')
     .then(res => res.json())
     .then(data => {
       classificationResult.value = data.result
+      hasAnalyzed.value = true  // 标记分析完成
     })
 }
 
-// 处理生成报告
+// 修改生成报告处理函数
 const handleGenerateReport = () => {
+  if (!hasAnalyzed.value) return  // 如果未完成分析，不生成报告
+  
   fetch('/mock/data/report.json')
     .then(res => res.json())
     .then(data => {
