@@ -2,7 +2,7 @@
   <div class="patient-list-container">
     <!-- 就诊列表 -->
     <div class="list-section" style="height: 64px">
-      <div class="section-header">就诊中</div>
+      <div class="section-header">就诊中1</div>
       <div class="table-container">
         <el-table 
           :data="inTreatmentPatients" 
