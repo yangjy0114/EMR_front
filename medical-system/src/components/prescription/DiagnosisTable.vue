@@ -2,28 +2,24 @@
   <div class="diagnosis-table">
     <div class="table-header">
       <div class="title">诊断信息</div>
-      <div class="actions">
+      <div class="actions" v-if="editable">
         <el-button type="primary" size="small" @click="handleAdd">
           <el-icon><Plus /></el-icon>添加
         </el-button>
       </div>
     </div>
-    <el-table :data="diagnosisList" style="width: 100%" size="small">
-      <el-table-column prop="type" label="类型" width="100">
+    <el-table :data="data" style="width: 100%" size="small" :row-style="{ height: '50px' }">
+      <el-table-column prop="type" label="类型" width="180">
         <template #default="scope">
-          <el-select v-model="scope.row.type" size="small" style="width: 90px">
-            <el-option label="单纯性肥胖" value="单纯性肥胖" />
-            <el-option label="高血压" value="高血压" />
-            <el-option label="糖尿病" value="糖尿病" />
-          </el-select>
+          <span style="font-size: 14px">{{ scope.row.type }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="description" label="描述">
         <template #default="scope">
-          <el-input v-model="scope.row.description" size="small" />
+          <span style="font-size: 14px">{{ scope.row.description }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="70">
+      <el-table-column label="操作" width="70" v-if="editable">
         <template #default="scope">
           <el-button 
             type="danger" 
@@ -39,25 +35,31 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 
-const diagnosisList = ref([
-  {
-    type: '单纯性肥胖',
-    description: '体重指数AAA(BMI)≥28.0'
+// 接收属性
+const props = defineProps({
+  data: {
+    type: Array,
+    default: () => []
+  },
+  editable: {
+    type: Boolean,
+    default: true
   }
-])
+})
 
 const handleAdd = () => {
-  diagnosisList.value.push({
+  if (!props.editable) return
+  props.data.push({
     type: '',
     description: ''
   })
 }
 
 const handleDelete = (index) => {
-  diagnosisList.value.splice(index, 1)
+  if (!props.editable) return
+  props.data.splice(index, 1)
 }
 </script>
 
@@ -70,8 +72,16 @@ const handleDelete = (index) => {
     margin-bottom: 10px;
     
     .title {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: bold;
+    }
+  }
+  
+  :deep(.el-table) {
+    th {
+      font-size: 14px;
+      background-color: #f5f7fa;
+      height: 45px !important;
     }
   }
 }
