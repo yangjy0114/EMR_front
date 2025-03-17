@@ -99,13 +99,14 @@
     <div class="report-section">
       <div class="report-container">
         <div class="section-title">AI 诊断报告</div>
-        <el-input
-          type="textarea"
-          :rows="4"
-          placeholder="等待生成诊断报告..."
-          v-model="aiReport"
-          readonly
-        />
+        <div class="report-content">
+          {{ displayReport }}
+          <div v-if="isTyping" class="typing-indicator">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -220,11 +221,58 @@
       border-radius: 4px;
       box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
 
-      :deep(.el-textarea__inner) {
+      .report-content {
+        min-height: 100px;
+        padding: 12px;
         font-size: 14px;
         line-height: 1.6;
+        background: #f5f7fa;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        
+        .typing-indicator {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          margin-left: 6px;
+          
+          .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #409EFF;
+            opacity: 0.3;
+            
+            &:nth-child(1) {
+              animation: breathe 1.5s infinite 0s;
+            }
+            
+            &:nth-child(2) {
+              animation: breathe 1.5s infinite 0.2s;
+            }
+            
+            &:nth-child(3) {
+              animation: breathe 1.5s infinite 0.4s;
+            }
+          }
+        }
       }
     }
+  }
+}
+
+@keyframes breathe {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
   }
 }
 </style>
@@ -249,6 +297,12 @@ const patientInfo = ref({
 // 添加状态控制变量
 const hasSelectedScan = ref(false)  // 是否已选择扫描记录
 const hasAnalyzed = ref(false)      // 是否已完成分析
+
+// 添加打字机效果相关的变量
+const fullReport = ref('') // 存储完整的报告文本
+const displayReport = ref('') // 用于显示的文本
+const isTyping = ref(false) // 是否正在打字
+const typingSpeed = 30 // 从50减到30，加快基础打字速度
 
 // 修改扫描记录数据，使用新的图片命名格式
 const scanRecords = ref([
@@ -317,14 +371,55 @@ const handleAnalysis = () => {
     })
 }
 
+// 修改打字机效果函数
+const typeReport = async (text) => {
+  isTyping.value = true
+  displayReport.value = ''
+  fullReport.value = text
+  
+  const getRandomDelay = () => {
+    const baseDelay = typingSpeed
+    
+    // 降低停顿概率从10%到5%，减少停顿时间从1000ms到500ms
+    if (Math.random() < 0.05) {
+      return baseDelay + Math.random() * 500
+    }
+    
+    // 减少随机波动从50ms到30ms
+    return baseDelay + Math.random() * 30
+  }
+  
+  const sentences = text.split(/([。！？.!?])/g)
+  
+  for (let i = 0; i < sentences.length; i++) {
+    const sentence = sentences[i]
+    
+    for (let j = 0; j < sentence.length; j++) {
+      displayReport.value += sentence[j]
+      
+      // 减少句子结束时的停顿时间从500-1000ms到300-500ms
+      if (j === sentence.length - 1 && /[。！？.!?]/.test(sentence)) {
+        await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 200))
+      } else {
+        await new Promise(resolve => setTimeout(resolve, getRandomDelay()))
+      }
+    }
+  }
+  
+  isTyping.value = false
+}
+
 // 修改生成报告处理函数
 const handleGenerateReport = () => {
-  if (!hasAnalyzed.value) return  // 如果未完成分析，不生成报告
+  if (!hasAnalyzed.value) return
+  
+  aiReport.value = '' // 清空之前的报告
   
   fetch('/mock/data/report.json')
     .then(res => res.json())
     .then(data => {
-      aiReport.value = data.text
+      // 开始打字效果
+      typeReport(data.text)
     })
 }
 </script> 
