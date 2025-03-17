@@ -11,12 +11,24 @@
     <el-table :data="data" style="width: 100%" size="small" :row-style="{ height: '50px' }">
       <el-table-column prop="type" label="类型" width="180">
         <template #default="scope">
-          <span style="font-size: 14px">{{ scope.row.type }}</span>
+          <el-input 
+            v-if="editable" 
+            v-model="scope.row.type" 
+            size="small" 
+            placeholder="请输入诊断类型"
+          />
+          <span v-else style="font-size: 14px">{{ scope.row.type }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="description" label="描述">
         <template #default="scope">
-          <span style="font-size: 14px">{{ scope.row.description }}</span>
+          <el-input 
+            v-if="editable" 
+            v-model="scope.row.description" 
+            size="small" 
+            placeholder="请输入诊断描述"
+          />
+          <span v-else style="font-size: 14px">{{ scope.row.description }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="70" v-if="editable">

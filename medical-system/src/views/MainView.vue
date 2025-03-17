@@ -12,18 +12,12 @@
           <component :is="Component" />
         </router-view>
       </el-main>
-      
-      <!-- 右侧快捷操作区 -->
-      <el-aside width="150px" class="aside-container">
-        <quick-actions></quick-actions>
-      </el-aside>
     </el-container>
   </div>
 </template>
 
 <script setup>
 import PatientList from '../components/patient/PatientList.vue'
-import QuickActions from '../components/layout/QuickActions.vue'
 </script>
 
 <style lang="scss" scoped>

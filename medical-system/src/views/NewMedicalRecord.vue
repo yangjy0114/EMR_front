@@ -87,7 +87,7 @@
 
         <!-- 操作按钮 -->
         <div class="actions">
-          <el-button type="primary" @click="handleSubmit">保存病历</el-button>
+          <el-button type="primary" @click="handleSubmit">提交病历</el-button>
           <el-button @click="handleReset">重置</el-button>
         </div>
       </div>
@@ -96,13 +96,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { Picture } from '@element-plus/icons-vue'
 import DiagnosisTable from '../components/prescription/DiagnosisTable.vue'
 import PrescriptionTable from '../components/prescription/PrescriptionTable.vue'
 import { useStore } from '../components/store'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const store = useStore()
+const router = useRouter()
 
 // 基本信息
 const basicForm = ref({
@@ -126,19 +129,50 @@ const medicalHistory = ref({
 const diagnosisData = ref([])
 const prescriptionData = ref([])
 
-// 从store获取患者信息
+// 从store获取患者信息和AI分析结果
 const initPatientInfo = () => {
   const patient = store.state.currentPatient
   if (patient) {
     basicForm.value = patient.basicForm
     // 可以选择是否预填充病史信息
-    // medicalHistory.value = patient.medicalHistory
+    medicalHistory.value = patient.medicalHistory || { allergies: '', history: '' }
+  }
+  
+  // 获取AI分析结果
+  if (store.state.aiAnalysisResults) {
+    segImage.value = store.state.aiAnalysisResults.segImage || ''
+    classificationResult.value = store.state.aiAnalysisResults.classificationResult || '暂无分类结果'
+    aiReport.value = store.state.aiAnalysisResults.aiReport || '暂无AI诊断建议'
   }
 }
+
+// 监听患者变化
+watch(() => store.state.currentPatient, () => {
+  initPatientInfo()
+}, { deep: true })
+
+// 监听AI分析结果变化
+watch(() => store.state.aiAnalysisResults, () => {
+  if (store.state.aiAnalysisResults) {
+    segImage.value = store.state.aiAnalysisResults.segImage || ''
+    classificationResult.value = store.state.aiAnalysisResults.classificationResult || '暂无分类结果'
+    aiReport.value = store.state.aiAnalysisResults.aiReport || '暂无AI诊断建议'
+  }
+}, { deep: true })
 
 // 提交处理
 const handleSubmit = () => {
   // 这里添加表单验证逻辑
+  if (diagnosisData.value.length === 0) {
+    ElMessage.warning('请至少添加一条诊断信息')
+    return
+  }
+  
+  if (prescriptionData.value.length === 0) {
+    ElMessage.warning('请至少添加一条处方信息')
+    return
+  }
+  
   const formData = {
     basicInfo: basicForm.value,
     medicalHistory: medicalHistory.value,
@@ -147,7 +181,15 @@ const handleSubmit = () => {
   }
   
   console.log('提交的病历数据：', formData)
-  // 这里添加提交到后端的逻辑
+  
+  // 模拟提交成功
+  ElMessage.success('病历提交成功')
+  
+  // 模拟后端操作：将当前就诊患者移至已就诊列表
+  // 实际项目中这部分应该由后端完成
+  
+  // 跳转回主页
+  router.push('/')
 }
 
 // 重置处理

@@ -151,8 +151,10 @@ const handleNavClick = (type) => {
         font-size: 14px;
         
         &:hover, &.is-active {
-          background-color: #6698e8 !important;
+          background-color: #2c5499 !important;
+          color: #ffffff !important;
           border-bottom: none;
+          box-shadow: inset 0 -2px 0 #ffffff;
         }
         
         &.is-active {

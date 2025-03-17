@@ -280,6 +280,9 @@
 <script setup>
 import { ref } from 'vue'
 import { Picture, VideoPlay, Document } from '@element-plus/icons-vue'
+import { useStore } from '../components/store'
+
+const store = useStore()
 
 const octImage = ref('')
 const fundusImage = ref('')
@@ -368,6 +371,13 @@ const handleAnalysis = () => {
     .then(data => {
       classificationResult.value = data.result
       hasAnalyzed.value = true  // 标记分析完成
+      
+      // 保存分析结果到store
+      store.setAiAnalysisResults({
+        segImage: segImage.value,
+        classificationResult: classificationResult.value,
+        aiReport: displayReport.value
+      })
     })
 }
 
@@ -420,6 +430,13 @@ const handleGenerateReport = () => {
     .then(data => {
       // 开始打字效果
       typeReport(data.text)
+      
+      // 更新store中的报告
+      store.setAiAnalysisResults({
+        segImage: segImage.value,
+        classificationResult: classificationResult.value,
+        aiReport: data.text
+      })
     })
 }
 </script> 
