@@ -2,7 +2,8 @@ import { reactive, readonly } from 'vue'
 
 const state = reactive({
   currentPatient: null,
-  aiAnalysisResults: null
+  aiAnalysisResults: null,
+  currentUser: null
 })
 
 export function useStore() {
@@ -13,10 +14,20 @@ export function useStore() {
   function setAiAnalysisResults(results) {
     state.aiAnalysisResults = results
   }
+  
+  function setCurrentUser(user) {
+    state.currentUser = user
+  }
+  
+  function clearCurrentUser() {
+    state.currentUser = null
+  }
 
   return {
     state: readonly(state),
     setCurrentPatient,
-    setAiAnalysisResults
+    setAiAnalysisResults,
+    setCurrentUser,
+    clearCurrentUser
   }
 } 

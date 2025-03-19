@@ -1,9 +1,18 @@
 <script setup>
 import NavBar from './components/layout/NavBar.vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 </script>
 
 <template>
-  <el-container class="app-container">
+  <!-- 登录页面不显示导航栏和主布局 -->
+  <template v-if="route.path === '/login'">
+    <router-view></router-view>
+  </template>
+  
+  <!-- 其他页面显示完整布局 -->
+  <el-container v-else class="app-container">
     <el-header height="75px" class="app-header">
       <nav-bar></nav-bar>
     </el-header>

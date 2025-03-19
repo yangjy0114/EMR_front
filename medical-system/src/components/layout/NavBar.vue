@@ -100,6 +100,28 @@
         </el-button-group>
       </div>
     </div>
+
+    <!-- 用户信息区域 -->
+    <div class="user-info">
+      <el-dropdown @command="handleCommand" trigger="click">
+        <div class="user-dropdown-link">
+          <el-avatar 
+            :size="28" 
+            :src="store.state.currentUser?.avatar"
+            :icon="UserFilled"
+          />
+          <span class="user-name">{{ store.state.currentUser?.realName }}</span>
+          <el-icon class="el-icon--right"><ArrowDown /></el-icon>
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="profile">个人信息</el-dropdown-item>
+            <el-dropdown-item command="password">修改密码</el-dropdown-item>
+            <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
   </div>
 </template>
 
@@ -109,14 +131,16 @@ import {
   Document, Monitor, Edit,
   Plus, Delete, Setting, List,
   Timer, Printer, Location, VideoCamera,
-  Star, Clock, More
+  Star, Clock, More, UserFilled, ArrowDown
 } from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useStore } from '../store'
 
 const router = useRouter()
 const route = useRoute()
 const activeIndex = ref('3')
 const activeSubNav = ref('history')
+const store = useStore()
 
 const handleNavClick = (type) => {
   activeSubNav.value = type
@@ -132,10 +156,25 @@ const handleNavClick = (type) => {
       break
   }
 }
+
+const handleCommand = (command) => {
+  switch (command) {
+    case 'logout':
+      // 清除用户信息
+      store.clearCurrentUser()
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      router.push('/login')
+      break
+    // 其他命令的处理...
+  }
+}
 </script>
 
 <style lang="scss" scoped>
 .nav-container {
+  position: relative;  // 确保子元素的绝对定位相对于这个容器
+  
   .main-nav {
     .main-menu {
       background-color: #4a7eca;
@@ -188,6 +227,44 @@ const handleNavClick = (type) => {
         .el-icon {
           margin-right: 3px;
         }
+      }
+    }
+  }
+
+  .user-info {
+    position: absolute;
+    right: 20px;
+    top: 0;  // 改为顶部对齐
+    height: 32px;  // 与顶部导航栏高度一致
+    display: flex;
+    align-items: center;
+    
+    .user-dropdown-link {
+      display: flex;
+      align-items: center;
+      background-color: rgba(255, 255, 255, 0.1);  // 半透明白色背景
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);  // 悬停时背景色加深
+      }
+      
+      .el-avatar {
+        margin-right: 6px;  // 减小头像和名字的间距
+      }
+      
+      .user-name {
+        margin: 0 4px;  // 减小名字和箭头的间距
+        color: #fff;
+        font-size: 14px;
+      }
+      
+      .el-icon--right {
+        color: #fff;
+        font-size: 12px;
       }
     }
   }
